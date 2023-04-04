@@ -4,21 +4,17 @@ namespace bot
 {
     public class StateInit
     {
-        public readonly int width;
-        public readonly int height;
-        public readonly Point target;
-        public readonly Point start;
+        public readonly Point finish;
+        public readonly Point bender;
         public readonly Switch[] switches;
         public bool[][] Map;
         public Point[] stones;
 
-        public StateInit(int width, int height, string[] mapLine, Point target, Point start,
+        public StateInit(int width, int height, string[] mapLine, Point finish, Point bender,
             Switch[] switches)
         {
-            this.width = width;
-            this.height = height;
-            this.target = target;
-            this.start = start;
+            this.finish = finish;
+            this.bender = bender;
             this.switches = switches;
             var map = new bool[height][];
             var stoneList = new List<Point>();
@@ -53,15 +49,19 @@ namespace bot
 
     public class State
     {
-        public Point TargetPos;
+        public Point BenderPos;
         public Switch[] Switches;
         public Point[] Stones;
+        public readonly bool[][] Map;
+        public readonly Point Finish;
 
-        public State(Point targetPos, Switch[] switches, Point[] stones)
+        public State(Point benderPos, Switch[] switches, Point[] stones, bool[][] map, Point finish)
         {
-            TargetPos = targetPos;
+            BenderPos = benderPos;
             Switches = switches;
             Stones = stones;
+            Map = map;
+            Finish = finish;
         }
     }
 }

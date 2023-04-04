@@ -16,10 +16,10 @@ namespace bot
         {
             // Copy paste here the code for input turn data
             if (prevState == null)
-                return new State(init.start, init.switches, init.stones);
+                return new State(init.bender, init.switches, init.stones, init.Map, init.finish);
             else
             {
-                Point newPos = ChangePos(prevState.TargetPos, command);
+                Point newPos = ChangePos(prevState.BenderPos, command);
                 Switch switchWithLocation = Array.Find(init.switches, s => s.location.Equals(newPos));
                 if (switchWithLocation != null)
                 {
@@ -31,7 +31,7 @@ namespace bot
                 {
                     init.stones[stoneIndex] = ChangePos(init.stones[stoneIndex], command);
                 }
-                return new State(newPos, init.switches, init.stones);
+                return new State(newPos, init.switches, init.stones, init.Map, init.finish);
             }
         }
 
