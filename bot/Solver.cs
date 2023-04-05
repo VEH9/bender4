@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace bot
 {
@@ -28,163 +29,100 @@ namespace bot
         
         private string GetCommands(List<Point> path)
         {
-            string commands = "";
+            var commands = new StringBuilder();
 
             for (int i = 1; i < path.Count; i++)
             {
                 if (path[i].Y > path[i - 1].Y)
                 {
-                    commands += "D";
+                    commands.Append('D');
                 }
                 else if (path[i].Y < path[i - 1].Y)
                 {
-                    commands += "U";
+                    commands.Append('U');
                 }
                 else if (path[i].X > path[i - 1].X)
                 {
-                    commands += "R";
+                    commands.Append('R');
                 }
                 else if (path[i].X < path[i - 1].X)
                 {
-                    commands += "L";
+                    commands.Append('L');
                 }
             }
 
-            return commands;
+            return commands.ToString();
         }
 
         private List<Point> FindShortestPath(Switch[] switches, Point start, Point finish, Point[] stones)
         {
-            var distances = new int[map[0].Length, map.Length];
+            var visitedPoint = new bool[map[0].Length, map.Length];
             for (int i = 0; i < map[0].Length; i++)
             {
                 for (int j = 0; j < map.Length; j++)
                 {
-                    distances[i, j] = -1;
+                    visitedPoint[i, j] = false;
                 }
             }
 
-            distances[start.X, start.Y] = 0;
-            var queue = new Queue<Point>();
-            queue.Enqueue(start);
+            visitedPoint[start.X, start.Y] = true;
+            
+            var startState = new State(start, switches, stones);
+            var queue = new Queue<State>();
+            queue.Enqueue(startState);
             while (queue.Count > 0)
             {
-                var currentPoint = queue.Dequeue();
-
-                if (currentPoint == finish)
+                var currentState = queue.Dequeue();
+                
+                foreach (var neighbor in GetNeighbors(currentState, visitedPoint, queue))
                 {
-                    return ReconstructPath(distances, start, finish);
-                }
-
-                foreach (var neighbor in GetNeighbors(switches, distances, queue, currentPoint, stones))
-                {
-                    var distance = int.MaxValue;
-                    if (distances[neighbor.X, neighbor.Y] != -1)
+                    if (visitedPoint[neighbor.BenderPos.X, neighbor.BenderPos.Y])
                     {
                         continue;
                     }
                     
-                    distance = 1;
-                    if (distances[currentPoint.X, currentPoint.Y] + distance < distances[neighbor.X, neighbor.Y] ||
-                        distances[neighbor.X, neighbor.Y] == -1)
+                    if (neighbor.BenderPos == finish)
                     {
-                        distances[neighbor.X, neighbor.Y] = distances[currentPoint.X, currentPoint.Y] + distance;
-                        queue.Enqueue(neighbor);
+                        return neighbor.path;
                     }
+                    
+                    visitedPoint[neighbor.BenderPos.X, neighbor.BenderPos.Y] = true;
                 }
             }
             
             return null;
         }
 
-        private List<Point> ReconstructPath(int[,] distances, Point start, Point finish)
+        private List<State> GetNeighbors(State currentState, bool[,] visitedPoint, Queue<State> queue)
         {
-            var path = new List<Point>();
-            path.Add(finish);
-
-            var currentPoint = finish;
-
-            while (currentPoint != start)
+            var neighbors = new List<State>();
+            
+            if (Sim.CanVisit(map, visitedPoint, currentState, Direction.Left, finish))
             {
-                foreach (var neighbor in GetNeighbors(currentPoint, distances))
-                {
-                    var distance = distances[currentPoint.X, currentPoint.Y];
-
-                    if (distance == distances[neighbor.X, neighbor.Y] + 1)
-                    {
-                        path.Add(neighbor);
-                        currentPoint = neighbor;
-                        break;
-                    }
-                }
+                var newState = new State(currentState, new Point(currentState.BenderPos.X - 1, currentState.BenderPos.Y));
+                neighbors.Add(newState);
+                queue.Enqueue(newState);
             }
             
-            path.Reverse();
-            return path;
-        }
-
-        private List<Point> GetNeighbors(Point cell, int[,] distances)
-        {
-            var neighbors = new List<Point>();
-            
-            if (cell.X > 0 && distances[cell.X - 1, cell.Y] != -1)
+            if (Sim.CanVisit(map, visitedPoint, currentState, Direction.Right, finish))
             {
-                neighbors.Add(new Point(cell.X - 1, cell.Y));
-            }
-    
-            if (cell.X < distances.GetLength(0) - 1 && distances[cell.X + 1, cell.Y] != -1)
-            {
-                neighbors.Add(new Point(cell.X + 1, cell.Y));
-            }
-    
-            if (cell.X > 0 && distances[cell.X, cell.Y - 1] != -1)
-            {
-                neighbors.Add(new Point(cell.X, cell.Y - 1));
-            }
-    
-            if (cell.Y < distances.GetLength(1) - 1 && distances[cell.X, cell.Y + 1] != -1)
-            {
-                neighbors.Add(new Point(cell.X, cell.Y + 1));
-            }
-    
-            return neighbors;
-        }
-
-        private List<Point> GetNeighbors(Switch[] switches, int[,] distances, Queue<Point> queue,
-            Point position, Point[] stones)
-        {
-            var neighbors = new List<Point>();
-            
-            if (Sim.CanVisit(map, distances, position, Direction.Left, stones, switches, finish))
-            {
-                var point = new Point(position.X - 1, position.Y);
-                neighbors.Add(point);
-                distances[position.X - 1, position.Y] = distances[position.X, position.Y] + 1;
-                queue.Enqueue(point);
-            }
-            
-            if (Sim.CanVisit(map, distances, position, Direction.Right, stones, switches, finish))
-            {
-                var point = new Point(position.X + 1, position.Y);
-                neighbors.Add(point);
-                distances[position.X + 1, position.Y] = distances[position.X, position.Y] + 1;
-                queue.Enqueue(point);
+                var newState = new State(currentState, new Point(currentState.BenderPos.X + 1, currentState.BenderPos.Y));
+                neighbors.Add(newState);
+                queue.Enqueue(newState);
             }
 
-            if (Sim.CanVisit(map, distances, position, Direction.Down, stones, switches, finish))
+            if (Sim.CanVisit(map, visitedPoint, currentState, Direction.Down, finish))
             {
-                var point = new Point(position.X, position.Y - 1);
-                neighbors.Add(point);
-                distances[position.X, position.Y - 1] = distances[position.X, position.Y] + 1;
-                queue.Enqueue(point);
+                var newState = new State(currentState, new Point(currentState.BenderPos.X, currentState.BenderPos.Y - 1));
+                neighbors.Add(newState);
+                queue.Enqueue(newState);
             }
 
-            if (Sim.CanVisit(map, distances, position, Direction.Up, stones, switches, finish))
+            if (Sim.CanVisit(map, visitedPoint, currentState, Direction.Up, finish))
             {
-                var point = new Point(position.X, position.Y + 1);
-                neighbors.Add(point);
-                distances[position.X, position.Y + 1] = distances[position.X, position.Y] + 1;
-                queue.Enqueue(point);
+                var newState = new State(currentState, new Point(currentState.BenderPos.X, currentState.BenderPos.Y + 1));
+                neighbors.Add(newState);
+                queue.Enqueue(newState);
             }
 
             return neighbors;

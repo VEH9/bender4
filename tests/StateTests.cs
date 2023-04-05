@@ -24,7 +24,7 @@ namespace bot
             var state = reader.ReadState();
             Console.WriteLine(state);
 
-            var solver = new Solver(state.Finish, state.Map);
+            //var solver = new Solver(state.Finish, state.Map);
             //Console.WriteLine(solver.GetSolution(reader.));
         }
     }

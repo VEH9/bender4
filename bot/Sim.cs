@@ -11,13 +11,13 @@ namespace bot
             var isWall = map[nextPos.Y][nextPos.X];
             if (!isWall)
                 return false;
-            if (switches != null)
+            if (switches.Length != 0)
             {
                 var switchWithMagneticField = Array.Find(switches, s => s.magneticField.Equals(nextPos));
                 if (switchWithMagneticField != null && switchWithMagneticField.fieldStatus == 1) return false;
             }
 
-            if (stones != null)
+            if (stones.Length != 0)
             {
                 var stone = Array.Find(stones, s => s.Equals(nextPos));
                 if (stone != null)
@@ -30,28 +30,28 @@ namespace bot
             return true;
         }
 
-        public static bool CanVisit(bool[][] map, int[,] distances, Point position, Direction command, Point[] stones,
-            Switch[] switches, Point finish)
+        public static bool CanVisit(bool[][] map, bool[,] visitedPoint, State currentState, Direction command,
+            Point finish)
         {
-            var newPos = position + command.ToPoint();
+            var newPos = currentState.BenderPos + command.ToPoint();
             switch (command)
             {
                 case Direction.Right:
-                    return position.X < map[0].Length - 1 &&
-                           inspectOnFieldAndStones(map, newPos, stones, switches, position, finish) &&
-                           distances[newPos.X, newPos.Y] == -1;
+                    return currentState.BenderPos.X < map[0].Length - 1 && !visitedPoint[newPos.X, newPos.Y] &&
+                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.Switches,
+                               currentState.BenderPos, finish);
                 case Direction.Down:
-                    return position.Y > 0 &&
-                           inspectOnFieldAndStones(map, newPos, stones, switches, position, finish) &&
-                           distances[newPos.X, newPos.Y] == -1;
+                    return currentState.BenderPos.Y > 0 && !visitedPoint[newPos.X, newPos.Y] &&
+                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.Switches,
+                               currentState.BenderPos, finish);
                 case Direction.Left:
-                    return position.X > 0 &&
-                           inspectOnFieldAndStones(map, newPos, stones, switches, position, finish) &&
-                           distances[newPos.X, newPos.Y] == -1;
+                    return currentState.BenderPos.X > 0 && !visitedPoint[newPos.X, newPos.Y] &&
+                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.Switches,
+                               currentState.BenderPos, finish);
                 case Direction.Up:
-                    return position.Y < map.Length - 1 &&
-                           inspectOnFieldAndStones(map, newPos, stones, switches, position, finish) &&
-                           distances[newPos.X, newPos.Y] == -1;
+                    return currentState.BenderPos.Y < map.Length - 1 && !visitedPoint[newPos.X, newPos.Y] &&
+                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.Switches,
+                               currentState.BenderPos, finish);
             }
 
             return false;

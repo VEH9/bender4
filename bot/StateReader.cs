@@ -12,55 +12,14 @@ namespace bot
         }
         
         // ReSharper disable once InconsistentNaming
-        public static State ReadState(this ConsoleReader Console, StateInit init, State prevState = null, string command = null)
+        public static State ReadState(this ConsoleReader Console, StateInit init)
         {
             // Copy paste here the code for input turn data
-            if (prevState == null)
-            {
-                var newStones = new Point[init.stones.Length];
-                Array.Copy(init.stones, newStones, init.stones.Length);
-                var newSwitches = new Switch[init.switches.Length];
-                Array.Copy(init.switches, newSwitches, init.switches.Length);
-                return new State(new Point(init.bender), newSwitches, newStones, init.Map, init.finish);
-            }
-            else
-            {
-                Point newPos = ChangePos(prevState.BenderPos, command);
-                Switch switchWithLocation = Array.Find(prevState.Switches, s => s.location.Equals(newPos));
-                if (switchWithLocation != null)
-                {
-                    switchWithLocation.fieldStatus = switchWithLocation.fieldStatus == 1 ? 0 : 1;
-                }
-
-                var stoneIndex = Array.FindIndex(prevState.Stones, s => s.Equals(newPos));
-                if (stoneIndex != -1)
-                {
-                    prevState.Stones[stoneIndex] = ChangePos(prevState.Stones[stoneIndex], command);
-                }
-                return new State(newPos, prevState.Switches, prevState.Stones, prevState.Map, prevState.Finish);
-            }
-        }
-
-        public static Point ChangePos(Point prevPos, string command)
-        {
-            Point newPos = null;
-            switch (command)
-            {
-                case "R":
-                    newPos = new Point(prevPos.X + 1, prevPos.Y);
-                    break;
-                case "D":
-                    newPos = new Point(prevPos.X, prevPos.Y-1);
-                    break;
-                case "L":
-                    newPos = new Point(prevPos.X - 1, prevPos.Y);
-                    break;
-                case "U":
-                    newPos = new Point(prevPos.X, prevPos.Y + 1);
-                    break;
-            }
-
-            return newPos;
+            var newStones = new Point[init.stones.Length];
+            Array.Copy(init.stones, newStones, init.stones.Length);
+            var newSwitches = new Switch[init.switches.Length];
+            Array.Copy(init.switches, newSwitches, init.switches.Length);
+            return new State(new Point(init.bender), newSwitches, newStones);
         }
 
         // ReSharper disable once InconsistentNaming
