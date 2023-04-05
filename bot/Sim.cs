@@ -6,16 +6,16 @@ namespace bot
 
     public class Sim
     {
-        private static bool inspectOnFieldAndStones(bool[][] map, Point nextPos, Point[] stones, Switch[] switches,
-            Point pos, Point finish)
+        private static bool inspectOnFieldAndStones(bool[][] map, Point nextPos, Point[] stones, int[] fieldStatus,
+            Point pos, Point finish, Switch[] switches)
         {
             var isWall = map[nextPos.Y][nextPos.X];
             if (!isWall)
                 return false;
-            if (switches.Length != 0)
+            if (fieldStatus.Length != 0)
             {
-                var switchWithMagneticField = Array.Find(switches, s => s.magneticField.Equals(nextPos));
-                if (switchWithMagneticField != null && switchWithMagneticField.fieldStatus == 1) return false;
+                var switchWithMagneticField = Array.FindIndex(switches, s => s.magneticField.Equals(nextPos));
+                if (switchWithMagneticField != -1 && fieldStatus[switchWithMagneticField] == 1) return false;
             }
 
             if (stones.Length != 0)
@@ -32,27 +32,27 @@ namespace bot
         }
 
         public static bool CanVisit(bool[][] map, State currentState, Direction command,
-            Point finish)
+            Point finish, Switch[] switches)
         {
             var newPos = currentState.BenderPos + command.ToPoint();
             switch (command)
             {
                 case Direction.Right:
                     return currentState.BenderPos.X < map[0].Length - 1 &&
-                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.Switches,
-                               currentState.BenderPos, finish);
+                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.fieldStatus,
+                               currentState.BenderPos, finish, switches);
                 case Direction.Down:
                     return currentState.BenderPos.Y > 0 &&
-                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.Switches,
-                               currentState.BenderPos, finish);
+                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.fieldStatus,
+                               currentState.BenderPos, finish, switches);
                 case Direction.Left:
                     return currentState.BenderPos.X > 0 &&
-                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.Switches,
-                               currentState.BenderPos, finish);
+                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.fieldStatus,
+                               currentState.BenderPos, finish, switches);
                 case Direction.Up:
                     return currentState.BenderPos.Y < map.Length - 1 &&
-                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.Switches,
-                               currentState.BenderPos, finish);
+                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.fieldStatus,
+                               currentState.BenderPos, finish, switches);
             }
 
             return false;

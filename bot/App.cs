@@ -11,7 +11,7 @@ namespace bot
         {
             var reader = new ConsoleReader();
             var init = reader.ReadInit();
-            var solver = new Solver(init.finish, init.Map);
+            var solver = new Solver();
             reader.FlushToStdErr();
             /*var first = true;
             State prevState = null;
@@ -19,7 +19,6 @@ namespace bot
             var result = new StringBuilder();
             while (true)
             {
-                var timer = new Countdown(first ? 500 : 50); //TODO fix timeouts
                 var state = first ? reader.ReadState(init) : reader.ReadState(init, prevState, prevComand);
                 var command = solver.GetCommand(state, timer);
                 result.Append(command);
@@ -29,7 +28,9 @@ namespace bot
                 //Console.Error.WriteLine(timer);
                 first = false;
             }*/
+            //var timer = new Countdown(1000);
             Console.WriteLine(solver.GetSolution(init));
+            
             
         }
     }

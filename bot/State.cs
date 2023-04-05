@@ -8,15 +8,17 @@ namespace bot
         public readonly Point finish;
         public readonly Point bender;
         public readonly Switch[] switches;
+        public readonly int[] fieldStatus;
         public bool[][] Map;
         public Point[] stones;
 
         public StateInit(int width, int height, string[] mapLine, Point finish, Point bender,
-            Switch[] switches)
+            Switch[] switches, int[] fieldStatus)
         {
             this.finish = finish;
             this.bender = bender;
             this.switches = switches;
+            this.fieldStatus = fieldStatus;
             var map = new bool[height][];
             var stoneList = new List<Point>();
             for (var y = 0; y < mapLine.Length; y++)
@@ -52,55 +54,46 @@ namespace bot
     {
         public List<Point> path;
         public Point BenderPos;
-        public Switch[] Switches;
+        public int[] fieldStatus;
         public Point[] Stones;
-        public int HashSum;
 
-        public State(Point benderPos, Switch[] switches, Point[] stones)
+        public int GetHashSum()
+        {
+            var hashCodeSum = BenderPos.GetHashCode() + fieldStatus.GetHashCode();
+
+            return hashCodeSum;
+        }
+        
+        public State(Point benderPos, int[] switches, Point[] stones)
         {
             path = new List<Point> { benderPos };
             BenderPos = new Point(benderPos);
-            var newSwitches = new Switch[switches.Length];
-            Array.Copy(switches, newSwitches, switches.Length);
-            Switches = newSwitches;
-            var hashCodeSum = BenderPos.GetHashCode();
-            foreach (var @switch in newSwitches)
-            {
-                hashCodeSum ^= @switch.GetHashCode();
-            }
-
-            HashSum = hashCodeSum;
+            fieldStatus = switches;
+            
             var newStones = new Point[stones.Length];
             Array.Copy(stones, newStones, stones.Length);
             Stones = newStones;
         }
 
-        public State(State prevState, Point newPosition)
+        public State(State prevState, Point newPosition, Switch[] switches)
         {
             BenderPos = newPosition;
-            var newSwitches = new Switch[prevState.Switches.Length];
-            for (int i = 0; i < prevState.Switches.Length; i++)
+            var newFieldStatus = new int[prevState.fieldStatus.Length];
+            for (int i = 0; i < prevState.fieldStatus.Length; i++)
             {
-                newSwitches[i] = new Switch(prevState.Switches[i]);
+                newFieldStatus[i] = prevState.fieldStatus[i];
             }
-            if (newSwitches.Length != 0)
+            if (newFieldStatus.Length != 0)
             {
-                var switchWithMagneticField = Array.Find(newSwitches, s => s.location.Equals(newPosition));
-                if (switchWithMagneticField != null) 
-                    switchWithMagneticField.fieldStatus = switchWithMagneticField.fieldStatus == 1 ? 0 : 1;
+                var switchWithMagneticField = Array.FindIndex(switches, s => s.location.Equals(newPosition));
+                if (switchWithMagneticField != -1) 
+                    newFieldStatus[switchWithMagneticField] = prevState.fieldStatus[switchWithMagneticField] == 1 ? 0 : 1;
             }
-            Switches = newSwitches;
+            fieldStatus = newFieldStatus;
             var newStones = new Point[prevState.Stones.Length]; // TODO
             Array.Copy(prevState.Stones, newStones, prevState.Stones.Length);
             Stones = newStones;
             path = new List<Point>(prevState.path) { newPosition };
-            var hashCodeSum = BenderPos.GetHashCode();
-            foreach (var @switch in newSwitches)
-            {
-                hashCodeSum ^= @switch.GetHashCode();
-            }
-
-            HashSum = hashCodeSum;
         }
     }
 }

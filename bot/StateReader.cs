@@ -15,11 +15,7 @@ namespace bot
         public static State ReadState(this ConsoleReader Console, StateInit init)
         {
             // Copy paste here the code for input turn data
-            var newStones = new Point[init.stones.Length];
-            Array.Copy(init.stones, newStones, init.stones.Length);
-            var newSwitches = new Switch[init.switches.Length];
-            Array.Copy(init.switches, newSwitches, init.switches.Length);
-            return new State(new Point(init.bender), newSwitches, newStones);
+            return new State(init.bender, init.fieldStatus, init.stones);
         }
 
         // ReSharper disable once InconsistentNaming
@@ -47,6 +43,7 @@ namespace bot
             int switchCount = int.Parse(Console.ReadLine());
 
             var switches = new List<Switch>();
+            var fieldStatus = new List<int>();
             for (int i = 0; i < switchCount; i++)
             {
                 inputs = Console.ReadLine().Split(' ');
@@ -57,9 +54,10 @@ namespace bot
                 int blockY = int.Parse(inputs[3]);
                 var blockPos = new Point(blockX, blockY);
                 int initialState = int.Parse(inputs[4]); // 1 if blocking, 0 otherwise
-                switches.Add(new Switch(switchPos, blockPos, initialState));
+                switches.Add(new Switch(switchPos, blockPos));
+                fieldStatus.Add(initialState);
             }
-            return new StateInit(width, height, mapLine, targetPos, startPos, switches.ToArray());
+            return new StateInit(width, height, mapLine, targetPos, startPos, switches.ToArray(), fieldStatus.ToArray());
         }
     }
 }

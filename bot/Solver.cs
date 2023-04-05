@@ -5,17 +5,16 @@ namespace bot
 {
     public class Solver
     {
-        public readonly Point finish;
-        public readonly bool[][] map;
+        private Point finish;
+        private bool[][] map;
+        private Switch[] switchesArr;
 
-        public Solver(Point finish, bool[][] map)
-        {
-            this.finish = finish;
-            this.map = map;
-        }
         public string GetSolution(StateInit init)
         {
-            var path = FindShortestPath(init.switches, init.bender, init.finish, init.stones);
+            finish = init.finish;
+            map = init.Map;
+            switchesArr = init.switches;
+            var path = FindShortestPath(init.fieldStatus, init.bender, init.finish, init.stones);
             if (path != null)
             {
                 var commands = GetCommands(path);
@@ -54,21 +53,21 @@ namespace bot
             return commands.ToString();
         }
 
-        private List<Point> FindShortestPath(Switch[] switches, Point start, Point finish, Point[] stones)
+        private List<Point> FindShortestPath(int[] fieldStatus, Point start, Point finish, Point[] stones)
         {
-            var visitedPoint = new HashSet<int>();
+            var visitedState = new HashSet<int>();
 
-            var startState = new State(start, switches, stones);
-            visitedPoint.Add(startState.HashSum);
+            var startState = new State(start, fieldStatus, stones);
+            visitedState.Add(startState.GetHashSum());
             var queue = new Queue<State>();
             queue.Enqueue(startState);
             while (queue.Count > 0)
             {
                 var currentState = queue.Dequeue();
                 
-                foreach (var neighbor in GetNeighbors(currentState, visitedPoint, queue))
+                foreach (var neighbor in GetNeighbors(currentState, visitedState, queue))
                 {
-                    if (visitedPoint.Contains(neighbor.HashSum))
+                    if (visitedState.Contains(neighbor.GetHashSum()))
                     {
                         continue;
                     }
@@ -78,51 +77,51 @@ namespace bot
                         return neighbor.path;
                     }
 
-                    visitedPoint.Add(neighbor.HashSum);
+                    visitedState.Add(neighbor.GetHashSum());
                 }
             }
             
             return null;
         }
 
-        private List<State> GetNeighbors(State currentState, HashSet<int> visitedPoint, Queue<State> queue)
+        private List<State> GetNeighbors(State currentState, HashSet<int> visitedState, Queue<State> queue)
         {
             var neighbors = new List<State>();
             
-            if (Sim.CanVisit(map, currentState, Direction.Left, finish))
+            if (Sim.CanVisit(map, currentState, Direction.Left, finish, switchesArr))
             {
-                var newState = new State(currentState, new Point(currentState.BenderPos.X - 1, currentState.BenderPos.Y));
-                if (!visitedPoint.Contains(newState.HashSum))
+                var newState = new State(currentState, new Point(currentState.BenderPos.X - 1, currentState.BenderPos.Y), switchesArr);
+                if (!visitedState.Contains(newState.GetHashSum()))
                 {
                     neighbors.Add(newState);
                     queue.Enqueue(newState);
                 }
             }
             
-            if (Sim.CanVisit(map, currentState, Direction.Right, finish))
+            if (Sim.CanVisit(map, currentState, Direction.Right, finish, switchesArr))
             {
-                var newState = new State(currentState, new Point(currentState.BenderPos.X + 1, currentState.BenderPos.Y));
-                if (!visitedPoint.Contains(newState.HashSum))
+                var newState = new State(currentState, new Point(currentState.BenderPos.X + 1, currentState.BenderPos.Y), switchesArr);
+                if (!visitedState.Contains(newState.GetHashSum()))
                 {
                     neighbors.Add(newState);
                     queue.Enqueue(newState);
                 }
             }
 
-            if (Sim.CanVisit(map, currentState, Direction.Down, finish))
+            if (Sim.CanVisit(map, currentState, Direction.Down, finish, switchesArr))
             {
-                var newState = new State(currentState, new Point(currentState.BenderPos.X, currentState.BenderPos.Y - 1));
-                if (!visitedPoint.Contains(newState.HashSum))
+                var newState = new State(currentState, new Point(currentState.BenderPos.X, currentState.BenderPos.Y - 1), switchesArr);
+                if (!visitedState.Contains(newState.GetHashSum()))
                 {
                     neighbors.Add(newState);
                     queue.Enqueue(newState);
                 }
             }
 
-            if (Sim.CanVisit(map, currentState, Direction.Up, finish))
+            if (Sim.CanVisit(map, currentState, Direction.Up, finish, switchesArr))
             {
-                var newState = new State(currentState, new Point(currentState.BenderPos.X, currentState.BenderPos.Y + 1));
-                if (!visitedPoint.Contains(newState.HashSum))
+                var newState = new State(currentState, new Point(currentState.BenderPos.X, currentState.BenderPos.Y + 1), switchesArr);
+                if (!visitedState.Contains(newState.GetHashSum()))
                 {
                     neighbors.Add(newState);
                     queue.Enqueue(newState);
