@@ -56,18 +56,10 @@ namespace bot
 
         private List<Point> FindShortestPath(Switch[] switches, Point start, Point finish, Point[] stones)
         {
-            var visitedPoint = new bool[map[0].Length, map.Length];
-            for (int i = 0; i < map[0].Length; i++)
-            {
-                for (int j = 0; j < map.Length; j++)
-                {
-                    visitedPoint[i, j] = false;
-                }
-            }
+            var visitedPoint = new HashSet<int>();
 
-            visitedPoint[start.X, start.Y] = true;
-            
             var startState = new State(start, switches, stones);
+            visitedPoint.Add(startState.HashSum);
             var queue = new Queue<State>();
             queue.Enqueue(startState);
             while (queue.Count > 0)
@@ -76,7 +68,7 @@ namespace bot
                 
                 foreach (var neighbor in GetNeighbors(currentState, visitedPoint, queue))
                 {
-                    if (visitedPoint[neighbor.BenderPos.X, neighbor.BenderPos.Y])
+                    if (visitedPoint.Contains(neighbor.HashSum))
                     {
                         continue;
                     }
@@ -85,44 +77,56 @@ namespace bot
                     {
                         return neighbor.path;
                     }
-                    
-                    visitedPoint[neighbor.BenderPos.X, neighbor.BenderPos.Y] = true;
+
+                    visitedPoint.Add(neighbor.HashSum);
                 }
             }
             
             return null;
         }
 
-        private List<State> GetNeighbors(State currentState, bool[,] visitedPoint, Queue<State> queue)
+        private List<State> GetNeighbors(State currentState, HashSet<int> visitedPoint, Queue<State> queue)
         {
             var neighbors = new List<State>();
             
-            if (Sim.CanVisit(map, visitedPoint, currentState, Direction.Left, finish))
+            if (Sim.CanVisit(map, currentState, Direction.Left, finish))
             {
                 var newState = new State(currentState, new Point(currentState.BenderPos.X - 1, currentState.BenderPos.Y));
-                neighbors.Add(newState);
-                queue.Enqueue(newState);
+                if (!visitedPoint.Contains(newState.HashSum))
+                {
+                    neighbors.Add(newState);
+                    queue.Enqueue(newState);
+                }
             }
             
-            if (Sim.CanVisit(map, visitedPoint, currentState, Direction.Right, finish))
+            if (Sim.CanVisit(map, currentState, Direction.Right, finish))
             {
                 var newState = new State(currentState, new Point(currentState.BenderPos.X + 1, currentState.BenderPos.Y));
-                neighbors.Add(newState);
-                queue.Enqueue(newState);
+                if (!visitedPoint.Contains(newState.HashSum))
+                {
+                    neighbors.Add(newState);
+                    queue.Enqueue(newState);
+                }
             }
 
-            if (Sim.CanVisit(map, visitedPoint, currentState, Direction.Down, finish))
+            if (Sim.CanVisit(map, currentState, Direction.Down, finish))
             {
                 var newState = new State(currentState, new Point(currentState.BenderPos.X, currentState.BenderPos.Y - 1));
-                neighbors.Add(newState);
-                queue.Enqueue(newState);
+                if (!visitedPoint.Contains(newState.HashSum))
+                {
+                    neighbors.Add(newState);
+                    queue.Enqueue(newState);
+                }
             }
 
-            if (Sim.CanVisit(map, visitedPoint, currentState, Direction.Up, finish))
+            if (Sim.CanVisit(map, currentState, Direction.Up, finish))
             {
                 var newState = new State(currentState, new Point(currentState.BenderPos.X, currentState.BenderPos.Y + 1));
-                neighbors.Add(newState);
-                queue.Enqueue(newState);
+                if (!visitedPoint.Contains(newState.HashSum))
+                {
+                    neighbors.Add(newState);
+                    queue.Enqueue(newState);
+                }
             }
 
             return neighbors;

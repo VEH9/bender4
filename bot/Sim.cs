@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace bot
 {
@@ -30,26 +31,26 @@ namespace bot
             return true;
         }
 
-        public static bool CanVisit(bool[][] map, bool[,] visitedPoint, State currentState, Direction command,
+        public static bool CanVisit(bool[][] map, State currentState, Direction command,
             Point finish)
         {
             var newPos = currentState.BenderPos + command.ToPoint();
             switch (command)
             {
                 case Direction.Right:
-                    return currentState.BenderPos.X < map[0].Length - 1 && !visitedPoint[newPos.X, newPos.Y] &&
+                    return currentState.BenderPos.X < map[0].Length - 1 &&
                            inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.Switches,
                                currentState.BenderPos, finish);
                 case Direction.Down:
-                    return currentState.BenderPos.Y > 0 && !visitedPoint[newPos.X, newPos.Y] &&
+                    return currentState.BenderPos.Y > 0 &&
                            inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.Switches,
                                currentState.BenderPos, finish);
                 case Direction.Left:
-                    return currentState.BenderPos.X > 0 && !visitedPoint[newPos.X, newPos.Y] &&
+                    return currentState.BenderPos.X > 0 &&
                            inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.Switches,
                                currentState.BenderPos, finish);
                 case Direction.Up:
-                    return currentState.BenderPos.Y < map.Length - 1 && !visitedPoint[newPos.X, newPos.Y] &&
+                    return currentState.BenderPos.Y < map.Length - 1 &&
                            inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.Switches,
                                currentState.BenderPos, finish);
             }

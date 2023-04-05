@@ -54,6 +54,7 @@ namespace bot
         public Point BenderPos;
         public Switch[] Switches;
         public Point[] Stones;
+        public int HashSum;
 
         public State(Point benderPos, Switch[] switches, Point[] stones)
         {
@@ -62,6 +63,13 @@ namespace bot
             var newSwitches = new Switch[switches.Length];
             Array.Copy(switches, newSwitches, switches.Length);
             Switches = newSwitches;
+            var hashCodeSum = BenderPos.GetHashCode();
+            foreach (var @switch in newSwitches)
+            {
+                hashCodeSum ^= @switch.GetHashCode();
+            }
+
+            HashSum = hashCodeSum;
             var newStones = new Point[stones.Length];
             Array.Copy(stones, newStones, stones.Length);
             Stones = newStones;
@@ -71,18 +79,28 @@ namespace bot
         {
             BenderPos = newPosition;
             var newSwitches = new Switch[prevState.Switches.Length];
-            Array.Copy(prevState.Switches, newSwitches, prevState.Switches.Length);
-            /*if (newSwitches.Length != 0)
+            for (int i = 0; i < prevState.Switches.Length; i++)
+            {
+                newSwitches[i] = new Switch(prevState.Switches[i]);
+            }
+            if (newSwitches.Length != 0)
             {
                 var switchWithMagneticField = Array.Find(newSwitches, s => s.location.Equals(newPosition));
                 if (switchWithMagneticField != null) 
                     switchWithMagneticField.fieldStatus = switchWithMagneticField.fieldStatus == 1 ? 0 : 1;
-            }*/
+            }
             Switches = newSwitches;
-            var newStones = new Point[prevState.Stones.Length];
+            var newStones = new Point[prevState.Stones.Length]; // TODO
             Array.Copy(prevState.Stones, newStones, prevState.Stones.Length);
             Stones = newStones;
             path = new List<Point>(prevState.path) { newPosition };
+            var hashCodeSum = BenderPos.GetHashCode();
+            foreach (var @switch in newSwitches)
+            {
+                hashCodeSum ^= @switch.GetHashCode();
+            }
+
+            HashSum = hashCodeSum;
         }
     }
 }

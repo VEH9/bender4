@@ -57,5 +57,16 @@
             int y = a.Y - b.Y;
             return new Point(x, y);
         }
+        
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + X.GetHashCode();
+                hash = hash * 23 + Y.GetHashCode();
+                return hash;
+            }
+        }
     }
 }
