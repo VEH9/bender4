@@ -16,22 +16,28 @@ namespace bot
         {
             // Copy paste here the code for input turn data
             if (prevState == null)
-                return new State(init.bender, init.switches, init.stones, init.Map, init.finish);
+            {
+                var newStones = new Point[init.stones.Length];
+                Array.Copy(init.stones, newStones, init.stones.Length);
+                var newSwitches = new Switch[init.switches.Length];
+                Array.Copy(init.switches, newSwitches, init.switches.Length);
+                return new State(new Point(init.bender), newSwitches, newStones, init.Map, init.finish);
+            }
             else
             {
                 Point newPos = ChangePos(prevState.BenderPos, command);
-                Switch switchWithLocation = Array.Find(init.switches, s => s.location.Equals(newPos));
+                Switch switchWithLocation = Array.Find(prevState.Switches, s => s.location.Equals(newPos));
                 if (switchWithLocation != null)
                 {
                     switchWithLocation.fieldStatus = switchWithLocation.fieldStatus == 1 ? 0 : 1;
                 }
 
-                var stoneIndex = Array.FindIndex(init.stones, s => s.Equals(newPos));
+                var stoneIndex = Array.FindIndex(prevState.Stones, s => s.Equals(newPos));
                 if (stoneIndex != -1)
                 {
-                    init.stones[stoneIndex] = ChangePos(init.stones[stoneIndex], command);
+                    prevState.Stones[stoneIndex] = ChangePos(prevState.Stones[stoneIndex], command);
                 }
-                return new State(newPos, init.switches, init.stones, init.Map, init.finish);
+                return new State(newPos, prevState.Switches, prevState.Stones, prevState.Map, prevState.Finish);
             }
         }
 

@@ -12,6 +12,12 @@
             Y = y;
         }
 
+        public Point(Point point)
+        {
+            X = point.X;
+            Y = point.Y;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj == null || GetType() != obj.GetType())

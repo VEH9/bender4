@@ -10,10 +10,10 @@ namespace bot
         private static void Main(string[] args)
         {
             var reader = new ConsoleReader();
-            var solver = new Solver();
             var init = reader.ReadInit();
+            var solver = new Solver(init.finish, init.Map);
             reader.FlushToStdErr();
-            var first = true;
+            /*var first = true;
             State prevState = null;
             string prevComand = null;
             var result = new StringBuilder();
@@ -28,7 +28,9 @@ namespace bot
                 
                 //Console.Error.WriteLine(timer);
                 first = false;
-            }
+            }*/
+            Console.WriteLine(solver.GetSolution(init));
+            
         }
     }
 }

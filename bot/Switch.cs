@@ -13,5 +13,12 @@
             this.magneticField = magneticField;
             this.fieldStatus = status;
         }
+
+        public Switch(Switch @switch)
+        {
+            this.location = @switch.location;
+            this.magneticField = @switch.magneticField;
+            this.fieldStatus = @switch.fieldStatus;
+        }
     }
 }
