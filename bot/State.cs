@@ -33,7 +33,7 @@ namespace bot
                             lineMap[x] = true;
                             break;
                         case '+':
-                            lineMap[x] = false; //TODO пока считаем что камни- стена
+                            lineMap[x] = false; //TODO пока считаем что камни- стены
                             stoneList.Add(new Point(x,y));
                             break;
                         case '#':
@@ -56,12 +56,14 @@ namespace bot
         public Point BenderPos;
         public int[] fieldStatus;
         public Point[] Stones;
+        public readonly int HashSum;
+        public int usedSwitched;
 
-        public int GetHashSum()
+        private int GetHashSum(bool isChangeFieldStatus, int prevFieldStatusHashSum = 0)
         {
-            var hashCodeSum = BenderPos.GetHashCode() + fieldStatus.GetHashCode();
-
-            return hashCodeSum;
+            if (isChangeFieldStatus)
+                return fieldStatus.GetHashCode();
+            return prevFieldStatusHashSum;
         }
         
         public State(Point benderPos, int[] switches, Point[] stones)
@@ -70,30 +72,38 @@ namespace bot
             BenderPos = new Point(benderPos);
             fieldStatus = switches;
             
-            var newStones = new Point[stones.Length];
-            Array.Copy(stones, newStones, stones.Length);
-            Stones = newStones;
+            usedSwitched = 0;
+
+            Stones = Array.Empty<Point>();//stones;
+            HashSum = GetHashSum(true);
         }
 
         public State(State prevState, Point newPosition, Switch[] switches)
         {
+            usedSwitched = prevState.usedSwitched;
             BenderPos = newPosition;
             var newFieldStatus = new int[prevState.fieldStatus.Length];
             for (int i = 0; i < prevState.fieldStatus.Length; i++)
             {
                 newFieldStatus[i] = prevState.fieldStatus[i];
             }
+            
+            var isChangeFieldStatus = false;
             if (newFieldStatus.Length != 0)
             {
                 var switchWithMagneticField = Array.FindIndex(switches, s => s.location.Equals(newPosition));
-                if (switchWithMagneticField != -1) 
-                    newFieldStatus[switchWithMagneticField] = prevState.fieldStatus[switchWithMagneticField] == 1 ? 0 : 1;
+                if (switchWithMagneticField != -1)
+                {
+                    newFieldStatus[switchWithMagneticField] =
+                        prevState.fieldStatus[switchWithMagneticField] == 1 ? 0 : 1;
+                    isChangeFieldStatus = true;
+                    usedSwitched++;
+                }
             }
             fieldStatus = newFieldStatus;
-            var newStones = new Point[prevState.Stones.Length]; // TODO
-            Array.Copy(prevState.Stones, newStones, prevState.Stones.Length);
-            Stones = newStones;
+            Stones = prevState.Stones; // TODO
             path = new List<Point>(prevState.path) { newPosition };
+            HashSum = GetHashSum(isChangeFieldStatus, prevState.HashSum);
         }
     }
 }
