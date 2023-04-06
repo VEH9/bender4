@@ -15,7 +15,7 @@ namespace bot
         public static State ReadState(this ConsoleReader Console, StateInit init)
         {
             // Copy paste here the code for input turn data
-            return new State(init.bender, init.fieldStatus, init.stones);
+            return new State(init.Bender, init.FieldStatus, init.Stones);
         }
 
         // ReSharper disable once InconsistentNaming
@@ -26,20 +26,43 @@ namespace bot
             inputs = Console.ReadLine().Split(' ');
             int width = int.Parse(inputs[0]);
             int height = int.Parse(inputs[1]);
-            var mapLine = new string[height];
-            for (int i = 0; i < height; i++)
+            
+            var map = new bool[height][];
+            var stoneList = new List<Point>();
+            for (int y = 0; y < height; y++)
             {
                 string line = Console.ReadLine();
-                mapLine[i] = line;
+                var lineToBool = new bool[width];
+                for (int x = 0; x < line.Length; x++)
+                {
+                    switch (line[x])
+                    {
+                        case '.':
+                            lineToBool[x] = true;
+                            break;
+                        case '+':
+                            lineToBool[x] = false; //TODO пока считаем что камни- стены
+                            stoneList.Add(new Point(x, y));
+                            break;
+                        case '#':
+                            lineToBool[x] = false;
+                            break;
+                    }
+
+                    map[y] = lineToBool;
+                }
             }
+                
             inputs = Console.ReadLine().Split(' ');
             int startX = int.Parse(inputs[0]);
             int startY = int.Parse(inputs[1]);
             var startPos = new Point(startX, startY);
+            
             inputs = Console.ReadLine().Split(' ');
             int targetX = int.Parse(inputs[0]);
             int targetY = int.Parse(inputs[1]);
             var targetPos = new Point(targetX, targetY);
+            
             int switchCount = int.Parse(Console.ReadLine());
 
             var switches = new List<Switch>();
@@ -50,14 +73,16 @@ namespace bot
                 int switchX = int.Parse(inputs[0]);
                 int switchY = int.Parse(inputs[1]);
                 var switchPos = new Point(switchX, switchY);
+                
                 int blockX = int.Parse(inputs[2]);
                 int blockY = int.Parse(inputs[3]);
                 var blockPos = new Point(blockX, blockY);
-                int initialState = int.Parse(inputs[4]); // 1 if blocking, 0 otherwise
+                
+                int initialState = int.Parse(inputs[4]); 
                 switches.Add(new Switch(switchPos, blockPos));
                 fieldStatus.Add(initialState);
             }
-            return new StateInit(width, height, mapLine, targetPos, startPos, switches.ToArray(), fieldStatus.ToArray());
+            return new StateInit(map, targetPos, startPos, switches.ToArray(), fieldStatus.ToArray(), stoneList.ToArray());
         }
     }
 }

@@ -6,7 +6,7 @@ namespace bot
 
     public class Sim
     {
-        private static bool inspectOnFieldAndStones(bool[][] map, Point nextPos, Point[] stones, int[] fieldStatus,
+        private static bool InspectOnFieldAndStones(bool[][] map, Point nextPos, Point[] stones, int[] fieldStatus,
             Point pos, Point finish, Switch[] switches)
         {
             var isWall = map[nextPos.Y][nextPos.X];
@@ -39,19 +39,19 @@ namespace bot
             {
                 case Direction.Right:
                     return currentState.BenderPos.X < map[0].Length - 1 &&
-                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.fieldStatus,
+                           InspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.FieldStatus,
                                currentState.BenderPos, finish, switches);
                 case Direction.Down:
                     return currentState.BenderPos.Y > 0 &&
-                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.fieldStatus,
+                           InspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.FieldStatus,
                                currentState.BenderPos, finish, switches);
                 case Direction.Left:
                     return currentState.BenderPos.X > 0 &&
-                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.fieldStatus,
+                           InspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.FieldStatus,
                                currentState.BenderPos, finish, switches);
                 case Direction.Up:
                     return currentState.BenderPos.Y < map.Length - 1 &&
-                           inspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.fieldStatus,
+                           InspectOnFieldAndStones(map, newPos, currentState.Stones, currentState.FieldStatus,
                                currentState.BenderPos, finish, switches);
             }
 
