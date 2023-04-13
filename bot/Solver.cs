@@ -55,11 +55,11 @@ namespace bot
             return commands.ToString();
         }
 
-        private List<Point> FindShortestPath(int[] fieldStatus, Point start, Point[] stones)
+        private List<Point> FindShortestPath(int fieldStatus, Point start, Point[] stones)
         {
             var visitedState = new Dictionary<Point, HashSet<int>>();
             var startState = new State(start, fieldStatus, stones);
-            visitedState.Add(startState.BenderPos, new HashSet<int>{startState.HashSum});
+            visitedState.Add(startState.BenderPos, new HashSet<int>{startState.FieldStatus});
             var queue = new PriorityQueue<State, int>();
             queue.Enqueue(startState, 0);
             while (queue.Count > 0)
@@ -69,7 +69,7 @@ namespace bot
                 foreach (var neighbor in GetNeighbors(currentState))
                 {
                     if (visitedState.ContainsKey(neighbor.BenderPos) &&
-                        visitedState[neighbor.BenderPos].Contains(neighbor.HashSum))
+                        visitedState[neighbor.BenderPos].Contains(neighbor.FieldStatus))
                     {
                         continue;
                     }
@@ -80,9 +80,9 @@ namespace bot
                         return neighbor.Path;
                     }
                     if (visitedState.ContainsKey(neighbor.BenderPos))
-                        visitedState[neighbor.BenderPos].Add(neighbor.HashSum);
+                        visitedState[neighbor.BenderPos].Add(neighbor.FieldStatus);
                     else 
-                        visitedState.Add(neighbor.BenderPos, new HashSet<int>{neighbor.HashSum});
+                        visitedState.Add(neighbor.BenderPos, new HashSet<int>{neighbor.FieldStatus});
                 }
             }
             

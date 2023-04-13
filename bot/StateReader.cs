@@ -66,7 +66,7 @@ namespace bot
             int switchCount = int.Parse(Console.ReadLine());
 
             var switches = new List<Switch>();
-            var fieldStatus = new List<int>();
+            var fieldStatus = 0;
             for (int i = 0; i < switchCount; i++)
             {
                 inputs = Console.ReadLine().Split(' ');
@@ -80,9 +80,10 @@ namespace bot
                 
                 int initialState = int.Parse(inputs[4]); 
                 switches.Add(new Switch(switchPos, blockPos));
-                fieldStatus.Add(initialState);
+                fieldStatus <<= 1;
+                fieldStatus |= initialState;
             }
-            return new StateInit(map, targetPos, startPos, switches.ToArray(), fieldStatus.ToArray(), stoneList.ToArray());
+            return new StateInit(map, targetPos, startPos, switches.ToArray(), fieldStatus, stoneList.ToArray());
         }
     }
 }
