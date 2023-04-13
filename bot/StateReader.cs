@@ -94,8 +94,6 @@ namespace bot
                 mask <<= 1;
                 mask |= fieldStatus[i];
             }
-            mask <<= 1;
-            mask |= 1;
             return new StateInit(map, targetPos, startPos, dictButtonToField, dictFieldIndex, mask, stoneList.ToArray());
         }
     }
