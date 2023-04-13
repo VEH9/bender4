@@ -22,9 +22,9 @@ namespace bot
                 case Direction.Left:
                     return new Point(-1, 0);
                 case Direction.Down:
-                    return new Point(0, -1);
-                case Direction.Up:
                     return new Point(0, 1);
+                case Direction.Up:
+                    return new Point(0, -1);
                 default:
                     throw new ArgumentException("Invalid direction.");
             }

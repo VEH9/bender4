@@ -114,14 +114,14 @@ namespace bot
             if (Sim.CanVisit(map, currentState, Direction.Down, finish, dictFieldIndex))
             {
                 var newState = new State(currentState, 
-                    new Point(currentState.BenderPos.X, currentState.BenderPos.Y - 1), dictButtonToField);
+                    new Point(currentState.BenderPos.X, currentState.BenderPos.Y + 1), dictButtonToField);
                 neighbors.Add(newState);
             }
 
             if (Sim.CanVisit(map, currentState, Direction.Up, finish, dictFieldIndex))
             {
                 var newState = new State(currentState, 
-                    new Point(currentState.BenderPos.X, currentState.BenderPos.Y + 1), dictButtonToField);
+                    new Point(currentState.BenderPos.X, currentState.BenderPos.Y - 1), dictButtonToField);
                 neighbors.Add(newState);
             }
 

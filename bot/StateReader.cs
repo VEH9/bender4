@@ -41,7 +41,7 @@ namespace bot
                             lineToBool[x] = true;
                             break;
                         case '+':
-                            lineToBool[x] = false; //TODO пока считаем что камни- стены
+                            lineToBool[x] = true; //TODO пока считаем что камни- стены
                             stoneList.Add(new Point(x, y));
                             break;
                         case '#':
@@ -67,7 +67,7 @@ namespace bot
             var dictButtonToField = new Dictionary<Point, (Point, int)>();
             var dictFieldIndex = new Dictionary<Point, int>();
            // var switches = new List<Switch>();
-            var fieldStatus = 0;
+            var fieldStatus = new List<int>();
             for (int i = 0; i < switchCount; i++)
             {
                 inputs = Console.ReadLine().Split(' ');
@@ -83,10 +83,17 @@ namespace bot
                // switches.Add(new Switch(switchPos, blockPos));
                 dictButtonToField.Add(switchPos, (blockPos, i));
                 dictFieldIndex.Add(blockPos, i);
-                fieldStatus <<= 1;
-                fieldStatus |= initialState;
+                fieldStatus.Add(initialState);
             }
-            return new StateInit(map, targetPos, startPos, dictButtonToField, dictFieldIndex, fieldStatus, stoneList.ToArray());
+            
+            int mask = 0;
+
+            for (int i = fieldStatus.Count-1; i >= 0; i--)
+            {
+                mask <<= 1;
+                mask |= fieldStatus[i];
+            }
+            return new StateInit(map, targetPos, startPos, dictButtonToField, dictFieldIndex, mask, stoneList.ToArray());
         }
     }
 }

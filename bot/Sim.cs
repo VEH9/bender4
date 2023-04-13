@@ -16,8 +16,6 @@ namespace bot
                     if (State.GetBitByIndex(fieldStatus, dictFieldIndex[nextPos]) == 1)
                         return false;
                 }
-                //if (switchWithMagneticField != -1 && State.GetBitByIndex(fieldStatus, switchWithMagneticField) == 1)
-                //    return false;
             }
 
             return true;
@@ -26,18 +24,17 @@ namespace bot
         private static bool InspectOnWall(bool[][] map, Point nextPos)
         {
             var isWall = map[nextPos.Y][nextPos.X];
-            if (!isWall)
-                return false;
-            return true;
+            return isWall;
         }
 
         private static bool InspectOnStones(bool[][] map, Point nextPos, Point pos, Point finish, Point[] stones)
         {
-            if (stones.Length != 0)
+            var stoneIndex = Array.FindIndex(stones, s => s.Equals(nextPos));
+            if (stoneIndex != -1)
             {
-                var stone = Array.Find(stones, s => s.Equals(nextPos));
-                var stoneNextPos = stone + (nextPos - pos);
-                if (!map[stoneNextPos.Y][stoneNextPos.X] || stoneNextPos == finish) return false;
+                var stoneNextPos = stones[stoneIndex] + (nextPos - pos);
+                var otherStone = Array.FindIndex(stones, s => s.Equals(stoneNextPos));
+                if (!InspectOnWall(map, stoneNextPos) || stoneNextPos == finish || otherStone != -1) return false;
             }
 
             return true;
@@ -61,7 +58,7 @@ namespace bot
                         currentState.Stones, currentState.FieldStatus,
                         currentState.BenderPos, finish, dictFieldIndex);
                 case Direction.Down:
-                    return currentState.BenderPos.Y > 0 &&
+                    return currentState.BenderPos.Y < map.Length - 1 &&
                            PerformAllChecks(map, newPos, currentState.Stones, currentState.FieldStatus,
                                currentState.BenderPos, finish, dictFieldIndex);
                 case Direction.Left:
@@ -69,7 +66,7 @@ namespace bot
                            PerformAllChecks(map, newPos, currentState.Stones, currentState.FieldStatus,
                                currentState.BenderPos, finish, dictFieldIndex);
                 case Direction.Up:
-                    return currentState.BenderPos.Y < map.Length - 1 &&
+                    return currentState.BenderPos.Y > 0 &&
                            PerformAllChecks(map, newPos, currentState.Stones, currentState.FieldStatus,
                                currentState.BenderPos, finish, dictFieldIndex);
             }

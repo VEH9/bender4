@@ -42,7 +42,7 @@ namespace bot
             BenderPos = new Point(benderPos);
             FieldStatus = switches;
             usedSwitched = 0;
-            Stones = Array.Empty<Point>();//stones;
+            Stones = stones;
         }
 
         public State(State prevState, Point newPosition, Dictionary<Point, (Point, int)> dictButtonToField)
@@ -56,11 +56,30 @@ namespace bot
                 {
                     var index = dictButtonToField[newPosition].Item2;
                     var curentBit = GetBitByIndex(FieldStatus, index);
-                    FieldStatus = ChangeBit(FieldStatus, index, curentBit);
+                    FieldStatus = ChangeBit(FieldStatus, index);
                     usedSwitched++;
                 }
             }
-            Stones = prevState.Stones; // TODO
+            
+            var newStones = (Point[])prevState.Stones.Clone();
+            if (prevState.Stones.Length != 0)
+            {
+                var stoneIndex = Array.FindIndex(newStones, s => s.Equals(newPosition));
+                if (stoneIndex != -1)
+                {
+                    var stone = newStones[stoneIndex];
+                    stone = stone + (newPosition - prevState.BenderPos);
+                    newStones[stoneIndex] = stone;
+                    if (dictButtonToField.ContainsKey(stone))
+                    {
+                        var index = dictButtonToField[stone].Item2;
+                        FieldStatus = ChangeBit(FieldStatus, index);
+                        usedSwitched++;
+                    }
+                }
+            }
+
+            Stones = newStones;
             Path = new List<Point>(prevState.Path) { newPosition };
         }
         
@@ -71,8 +90,9 @@ namespace bot
             return bitValue ? 1 : 0;
         }
         
-        public int ChangeBit(int mask, int index, int newValue)
+        public int ChangeBit(int mask, int index)
         {
+            var newValue = GetBitByIndex(mask, index);
             newValue = newValue == 0 ? 1 : 0;
             int bitMask = 1 << index;
             if (newValue == 0)
