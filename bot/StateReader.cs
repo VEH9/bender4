@@ -64,8 +64,9 @@ namespace bot
             var targetPos = new Point(targetX, targetY);
             
             int switchCount = int.Parse(Console.ReadLine());
-
-            var switches = new List<Switch>();
+            var dictButtonToField = new Dictionary<Point, (Point, int)>();
+            var dictFieldIndex = new Dictionary<Point, int>();
+           // var switches = new List<Switch>();
             var fieldStatus = 0;
             for (int i = 0; i < switchCount; i++)
             {
@@ -79,11 +80,13 @@ namespace bot
                 var blockPos = new Point(blockX, blockY);
                 
                 int initialState = int.Parse(inputs[4]); 
-                switches.Add(new Switch(switchPos, blockPos));
+               // switches.Add(new Switch(switchPos, blockPos));
+                dictButtonToField.Add(switchPos, (blockPos, i));
+                dictFieldIndex.Add(blockPos, i);
                 fieldStatus <<= 1;
                 fieldStatus |= initialState;
             }
-            return new StateInit(map, targetPos, startPos, switches.ToArray(), fieldStatus, stoneList.ToArray());
+            return new StateInit(map, targetPos, startPos, dictButtonToField, dictFieldIndex, fieldStatus, stoneList.ToArray());
         }
     }
 }

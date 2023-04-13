@@ -1,7 +1,7 @@
 ﻿namespace bot
 {
 
-    public class Point
+    public struct Point
     {
         public readonly int X;
         public readonly int Y;
@@ -31,11 +31,6 @@
 
         public static bool operator ==(Point a, Point b)
         {
-            if (ReferenceEquals(a, null))
-            {
-                return ReferenceEquals(b, null);
-            }
-
             return a.Equals(b);
         }
 

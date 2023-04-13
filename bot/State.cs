@@ -7,17 +7,21 @@ namespace bot
     {
         public readonly Point Finish;
         public readonly Point Bender;
-        public readonly Switch[] Switches;
+        //public readonly Switch[] Switches;
         public readonly int FieldStatus;
+        public readonly Dictionary<Point, (Point, int)> DictButtonToField;
+        public readonly Dictionary<Point, int> DictFieldIndex;
         public readonly bool[][] Map;
         public Point[] Stones;
 
         public StateInit(bool[][] map, Point finish, Point bender,
-            Switch[] switches, int fieldStatus, Point[] stones)
+            Dictionary<Point, (Point, int)> dictButtonToField ,Dictionary<Point, int> dictFieldIndex, int fieldStatus, Point[] stones)
         {
             Finish = finish;
             Bender = bender;
-            Switches = switches;
+            //Switches = switches;
+            DictFieldIndex = dictFieldIndex;
+            DictButtonToField = dictButtonToField;
             FieldStatus = fieldStatus;
             Stones = stones;
             Map = map;
@@ -41,19 +45,18 @@ namespace bot
             Stones = Array.Empty<Point>();//stones;
         }
 
-        public State(State prevState, Point newPosition, Switch[] switches)
+        public State(State prevState, Point newPosition, Dictionary<Point, (Point, int)> dictButtonToField)
         {
             usedSwitched = prevState.usedSwitched;
             BenderPos = newPosition;
-            var isChangeFieldStatus = false;
             FieldStatus = prevState.FieldStatus;
             if (FieldStatus != 0)
             {
-                var switchWithMagneticField = Array.FindIndex(switches, s => s.location.Equals(newPosition));
-                if (switchWithMagneticField != -1)
+                if (dictButtonToField.ContainsKey(newPosition))
                 {
-                    var curentBit = GetBitByIndex(FieldStatus, switchWithMagneticField);
-                    FieldStatus = ChangeBit(FieldStatus, switchWithMagneticField, curentBit);
+                    var index = dictButtonToField[newPosition].Item2;
+                    var curentBit = GetBitByIndex(FieldStatus, index);
+                    FieldStatus = ChangeBit(FieldStatus, index, curentBit);
                     usedSwitched++;
                 }
             }

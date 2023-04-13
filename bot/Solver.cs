@@ -9,13 +9,17 @@ namespace bot
     {
         private Point finish;
         private bool[][] map;
-        private Switch[] switchesArr;
+        //private Switch[] switchesArr;
+        public Dictionary<Point, (Point, int)> dictButtonToField;
+        public Dictionary<Point, int> dictFieldIndex;
 
         public string GetSolution(StateInit init)
         {
             finish = init.Finish;
             map = init.Map;
-            switchesArr = init.Switches;
+            //switchesArr = init.Switches;
+            dictButtonToField = init.DictButtonToField;
+            dictFieldIndex = init.DictFieldIndex;
             var path = FindShortestPath(init.FieldStatus, init.Bender, init.Stones);
             if (path != null)
             {
@@ -93,31 +97,31 @@ namespace bot
         {
             var neighbors = new List<State>();
             
-            if (Sim.CanVisit(map, currentState, Direction.Left, finish, switchesArr))
+            if (Sim.CanVisit(map, currentState, Direction.Left, finish, dictFieldIndex))
             {
                 var newState = new State(currentState, 
-                    new Point(currentState.BenderPos.X - 1, currentState.BenderPos.Y), switchesArr);
+                    new Point(currentState.BenderPos.X - 1, currentState.BenderPos.Y), dictButtonToField);
                 neighbors.Add(newState);
             }
             
-            if (Sim.CanVisit(map, currentState, Direction.Right, finish, switchesArr))
+            if (Sim.CanVisit(map, currentState, Direction.Right, finish, dictFieldIndex))
             {
                 var newState = new State(currentState, 
-                    new Point(currentState.BenderPos.X + 1, currentState.BenderPos.Y), switchesArr);
+                    new Point(currentState.BenderPos.X + 1, currentState.BenderPos.Y), dictButtonToField);
                 neighbors.Add(newState);
             }
 
-            if (Sim.CanVisit(map, currentState, Direction.Down, finish, switchesArr))
+            if (Sim.CanVisit(map, currentState, Direction.Down, finish, dictFieldIndex))
             {
                 var newState = new State(currentState, 
-                    new Point(currentState.BenderPos.X, currentState.BenderPos.Y - 1), switchesArr);
+                    new Point(currentState.BenderPos.X, currentState.BenderPos.Y - 1), dictButtonToField);
                 neighbors.Add(newState);
             }
 
-            if (Sim.CanVisit(map, currentState, Direction.Up, finish, switchesArr))
+            if (Sim.CanVisit(map, currentState, Direction.Up, finish, dictFieldIndex))
             {
                 var newState = new State(currentState, 
-                    new Point(currentState.BenderPos.X, currentState.BenderPos.Y + 1), switchesArr);
+                    new Point(currentState.BenderPos.X, currentState.BenderPos.Y + 1), dictButtonToField);
                 neighbors.Add(newState);
             }
 
