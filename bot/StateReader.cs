@@ -87,12 +87,15 @@ namespace bot
             }
             
             int mask = 0;
-
+            mask <<= 1;
+            mask |= 1;
             for (int i = fieldStatus.Count-1; i >= 0; i--)
             {
                 mask <<= 1;
                 mask |= fieldStatus[i];
             }
+            mask <<= 1;
+            mask |= 1;
             return new StateInit(map, targetPos, startPos, dictButtonToField, dictFieldIndex, mask, stoneList.ToArray());
         }
     }
