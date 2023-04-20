@@ -43,21 +43,23 @@ namespace bot
             Stones = stones;
         }
 
-        public State(State prevState, Point newPosition, Dictionary<Point, (Point, int)> dictButtonToField)
+        public State(State prevState, Point newPosition, Dictionary<Point, (Point, int)> dictButtonToField, bool[][] map, Point finish, Dictionary<Point, int> dictFieldIndex)
         {
+            if (!PerformAllChecks(map, newPosition,
+                    prevState.Stones, prevState.FieldStatus,
+                    prevState.BenderPos, finish, dictFieldIndex)) return;
+
             usedSwitched = prevState.usedSwitched;
             BenderPos = newPosition;
             FieldStatus = prevState.FieldStatus;
-            if (FieldStatus != 0)
+
+            if (FieldStatus != 0 && dictButtonToField.ContainsKey(newPosition))
             {
-                if (dictButtonToField.ContainsKey(newPosition))
-                {
-                    var index = dictButtonToField[newPosition].Item2;
-                    FieldStatus = ChangeBit(FieldStatus, index);
-                    usedSwitched++;
-                }
+                var index = dictButtonToField[newPosition].Item2;
+                FieldStatus = ChangeBit(FieldStatus, index);
+                usedSwitched++;
             }
-            
+
             var newStones = (Point[])prevState.Stones.Clone();
             if (prevState.Stones.Length != 0)
             {
@@ -143,33 +145,6 @@ namespace bot
         {
             return InspectOnWall(map, nextPos) && InspectOnField(nextPos, fieldStatus, dictFieldIndex) &&
                    InspectOnStones(map, nextPos, pos, finish, stones);
-        }
-
-        public static bool CanVisit(bool[][] map, State currentState, Direction command,
-            Point finish, Dictionary<Point, int> dictFieldIndex)
-        {
-            var newPos = currentState.BenderPos + command.ToPoint();
-            switch (command)
-            {
-                case Direction.Right:
-                    return currentState.BenderPos.X < map[0].Length - 1 && PerformAllChecks(map, newPos,
-                        currentState.Stones, currentState.FieldStatus,
-                        currentState.BenderPos, finish, dictFieldIndex);
-                case Direction.Down:
-                    return currentState.BenderPos.Y < map.Length - 1 &&
-                           PerformAllChecks(map, newPos, currentState.Stones, currentState.FieldStatus,
-                               currentState.BenderPos, finish, dictFieldIndex);
-                case Direction.Left:
-                    return currentState.BenderPos.X > 0 &&
-                           PerformAllChecks(map, newPos, currentState.Stones, currentState.FieldStatus,
-                               currentState.BenderPos, finish, dictFieldIndex);
-                case Direction.Up:
-                    return currentState.BenderPos.Y > 0 &&
-                           PerformAllChecks(map, newPos, currentState.Stones, currentState.FieldStatus,
-                               currentState.BenderPos, finish, dictFieldIndex);
-            }
-
-            return false;
         }
     }
 }

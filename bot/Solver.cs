@@ -96,34 +96,13 @@ namespace bot
         private List<State> GetNeighbors(State currentState)
         {
             var neighbors = new List<State>();
-            
-            if (State.CanVisit(map, currentState, Direction.Left, finish, dictFieldIndex))
+
+            foreach (Direction dir in Enum.GetValues(typeof(Direction)))
             {
-                var newState = new State(currentState, 
-                    new Point(currentState.BenderPos.X - 1, currentState.BenderPos.Y), dictButtonToField);
-                neighbors.Add(newState);
-            }
-            
-            if (State.CanVisit(map, currentState, Direction.Right, finish, dictFieldIndex))
-            {
-                var newState = new State(currentState, 
-                    new Point(currentState.BenderPos.X + 1, currentState.BenderPos.Y), dictButtonToField);
-                neighbors.Add(newState);
+                var state = new State(currentState, currentState.BenderPos + dir.ToPoint(), dictButtonToField, map, finish, dictFieldIndex);
+                if (state.Path != null) neighbors.Add(state);
             }
 
-            if (State.CanVisit(map, currentState, Direction.Down, finish, dictFieldIndex))
-            {
-                var newState = new State(currentState, 
-                    new Point(currentState.BenderPos.X, currentState.BenderPos.Y + 1), dictButtonToField);
-                neighbors.Add(newState);
-            }
-
-            if (State.CanVisit(map, currentState, Direction.Up, finish, dictFieldIndex))
-            {
-                var newState = new State(currentState, 
-                    new Point(currentState.BenderPos.X, currentState.BenderPos.Y - 1), dictButtonToField);
-                neighbors.Add(newState);
-            }
             return neighbors;
         }
     }
