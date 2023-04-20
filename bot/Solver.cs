@@ -97,34 +97,33 @@ namespace bot
         {
             var neighbors = new List<State>();
             
-            if (Sim.CanVisit(map, currentState, Direction.Left, finish, dictFieldIndex))
+            if (State.CanVisit(map, currentState, Direction.Left, finish, dictFieldIndex))
             {
                 var newState = new State(currentState, 
                     new Point(currentState.BenderPos.X - 1, currentState.BenderPos.Y), dictButtonToField);
                 neighbors.Add(newState);
             }
             
-            if (Sim.CanVisit(map, currentState, Direction.Right, finish, dictFieldIndex))
+            if (State.CanVisit(map, currentState, Direction.Right, finish, dictFieldIndex))
             {
                 var newState = new State(currentState, 
                     new Point(currentState.BenderPos.X + 1, currentState.BenderPos.Y), dictButtonToField);
                 neighbors.Add(newState);
             }
 
-            if (Sim.CanVisit(map, currentState, Direction.Down, finish, dictFieldIndex))
+            if (State.CanVisit(map, currentState, Direction.Down, finish, dictFieldIndex))
             {
                 var newState = new State(currentState, 
                     new Point(currentState.BenderPos.X, currentState.BenderPos.Y + 1), dictButtonToField);
                 neighbors.Add(newState);
             }
 
-            if (Sim.CanVisit(map, currentState, Direction.Up, finish, dictFieldIndex))
+            if (State.CanVisit(map, currentState, Direction.Up, finish, dictFieldIndex))
             {
                 var newState = new State(currentState, 
                     new Point(currentState.BenderPos.X, currentState.BenderPos.Y - 1), dictButtonToField);
                 neighbors.Add(newState);
             }
-
             return neighbors;
         }
     }
