@@ -9,7 +9,6 @@ namespace bot
     {
         private Point finish;
         private bool[][] map;
-        //private Switch[] switchesArr;
         public Dictionary<Point, (Point, int)> dictButtonToField;
         public Dictionary<Point, int> dictFieldIndex;
 
@@ -17,7 +16,6 @@ namespace bot
         {
             finish = init.Finish;
             map = init.Map;
-            //switchesArr = init.Switches;
             dictButtonToField = init.DictButtonToField;
             dictFieldIndex = init.DictFieldIndex;
             var path = FindShortestPath(init.FieldStatus, init.Bender, init.Stones);
@@ -32,7 +30,7 @@ namespace bot
             }
         }
         
-        private string GetCommands(List<Point> path)
+        private static string GetCommands(List<Point> path)
         {
             var commands = new StringBuilder();
 
@@ -80,9 +78,7 @@ namespace bot
 
                     queue.Enqueue(neighbor, neighbor.usedSwitched);
                     if (neighbor.BenderPos == finish)
-                    {
                         return neighbor.Path;
-                    }
                     if (visitedState.ContainsKey(neighbor.BenderPos))
                         visitedState[neighbor.BenderPos].Add(neighbor.FieldStatus);
                     else 
@@ -93,17 +89,14 @@ namespace bot
             return null;
         }
 
-        private List<State> GetNeighbors(State currentState)
+        private IEnumerable<State> GetNeighbors(State currentState)
         {
-            var neighbors = new List<State>();
-
             foreach (Direction dir in Enum.GetValues(typeof(Direction)))
             {
                 var state = new State(currentState, currentState.BenderPos + dir.ToPoint(), dictButtonToField, map, finish, dictFieldIndex);
-                if (state.Path != null) neighbors.Add(state);
+                if (state.Path != null)
+                    yield return state;
             }
-
-            return neighbors;
         }
     }
 }   

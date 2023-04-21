@@ -41,7 +41,7 @@ namespace bot
                             lineToBool[x] = true;
                             break;
                         case '+':
-                            lineToBool[x] = true; //TODO пока считаем что камни- стены
+                            lineToBool[x] = true; // TODO если играем с камнями, то не проходим 27 тест валидатора
                             stoneList.Add(new Point(x, y));
                             break;
                         case '#':

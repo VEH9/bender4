@@ -33,6 +33,7 @@ namespace bot
         public readonly int FieldStatus;
         public readonly Point[] Stones;
         public readonly int usedSwitched;
+        public readonly int usedStones;
 
         public State(Point benderPos, int switches, Point[] stones)
         {
@@ -40,35 +41,32 @@ namespace bot
             BenderPos = new Point(benderPos);
             FieldStatus = switches;
             usedSwitched = 0;
+            usedStones = 0;
             Stones = stones;
         }
 
         public State(State prevState, Point newPosition, Dictionary<Point, (Point, int)> dictButtonToField, bool[][] map, Point finish, Dictionary<Point, int> dictFieldIndex)
         {
-            if (!PerformAllChecks(map, newPosition,
-                    prevState.Stones, prevState.FieldStatus,
-                    prevState.BenderPos, finish, dictFieldIndex)) return;
-
+            if (!(InspectOnWall(map, newPosition) && InspectOnField(newPosition, prevState.FieldStatus, dictFieldIndex)))
+                return;
+            var newStones = new Point[prevState.Stones.Length];
+            Array.Copy(prevState.Stones, newStones, prevState.Stones.Length);
             usedSwitched = prevState.usedSwitched;
-            BenderPos = newPosition;
+            usedStones = prevState.usedStones;
             FieldStatus = prevState.FieldStatus;
-
-            if (FieldStatus != 0 && dictButtonToField.ContainsKey(newPosition))
-            {
-                var index = dictButtonToField[newPosition].Item2;
-                FieldStatus = ChangeBit(FieldStatus, index);
-                usedSwitched++;
-            }
-
-            var newStones = (Point[])prevState.Stones.Clone();
             if (prevState.Stones.Length != 0)
             {
                 var stoneIndex = Array.FindIndex(newStones, s => s.Equals(newPosition));
                 if (stoneIndex != -1)
                 {
+                    if (!InspectOnStones(map, newPosition, prevState.BenderPos, finish, 
+                            newStones, stoneIndex))
+                        return;
+                
                     var stone = newStones[stoneIndex];
-                    stone = stone + (newPosition - prevState.BenderPos);
+                    stone += (newPosition - prevState.BenderPos);
                     newStones[stoneIndex] = stone;
+                    usedStones++;
                     if (dictButtonToField.ContainsKey(stone))
                     {
                         var index = dictButtonToField[stone].Item2;
@@ -77,9 +75,15 @@ namespace bot
                     }
                 }
             }
-
+            BenderPos = newPosition;
             Stones = newStones;
             Path = new List<Point>(prevState.Path) { newPosition };
+            if (FieldStatus != 0 && dictButtonToField.ContainsKey(newPosition))
+            {
+                var index = dictButtonToField[newPosition].Item2;
+                FieldStatus = ChangeBit(FieldStatus, index);
+                usedSwitched++;
+            }
         }
         
         public static int GetBitByIndex(int mask, int index)
@@ -127,24 +131,19 @@ namespace bot
             return isWall;
         }
 
-        private static bool InspectOnStones(bool[][] map, Point nextPos, Point pos, Point finish, Point[] stones)
+        private static bool InspectOnStones(bool[][] map, Point nextPos, Point pos, Point finish, Point[] stones, int stoneIndex)
         {
-            var stoneIndex = Array.FindIndex(stones, s => s.Equals(nextPos));
-            if (stoneIndex != -1)
-            {
-                var stoneNextPos = stones[stoneIndex] + (nextPos - pos);
-                var otherStone = Array.FindIndex(stones, s => s.Equals(stoneNextPos));
-                if (!InspectOnWall(map, stoneNextPos) || stoneNextPos == finish || otherStone != -1) return false;
-            }
-
+            var stoneNextPos = stones[stoneIndex] + (nextPos - pos);
+            var otherStone = Array.FindIndex(stones, s => s.Equals(stoneNextPos));
+            if (!InspectOnWall(map, stoneNextPos) || stoneNextPos == finish || otherStone != -1) return false;
+            
             return true;
         }
 
-        private static bool PerformAllChecks(bool[][] map, Point nextPos, Point[] stones, int fieldStatus,
-            Point pos, Point finish, Dictionary<Point, int> dictFieldIndex)
+        private static bool PerformAllChecksForBender(bool[][] map, Point nextPos, int fieldStatus,
+            Dictionary<Point, int> dictFieldIndex)
         {
-            return InspectOnWall(map, nextPos) && InspectOnField(nextPos, fieldStatus, dictFieldIndex) &&
-                   InspectOnStones(map, nextPos, pos, finish, stones);
+            return InspectOnWall(map, nextPos) && InspectOnField(nextPos, fieldStatus, dictFieldIndex);
         }
     }
 }
