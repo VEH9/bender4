@@ -26,7 +26,7 @@ namespace bot
                     var commands = GetCommands(path);
                     var compressedCommands = CompressString(commands, 1);
                     var p = compressedCommands.Length < commands.Length ? compressedCommands : commands;
-                    if (p.Length < bestPath.Length || bestPath == "")
+                    if (p.Length <= bestPath.Length || bestPath == "")
                     {
                         bestPath = p;
                     }
@@ -98,8 +98,6 @@ namespace bot
                         visitedState.Add(neighbor.BenderPos, new HashSet<int>{neighbor.FieldStatus});
                 }
             }
-            
-            yield break;
         }
 
         private IEnumerable<State> GetNeighbors(State currentState)
@@ -118,24 +116,26 @@ namespace bot
                 return inputString;
 
             var substringCounts = new Dictionary<string, int>();
+            var separator = inputString.IndexOf(';');
+            var length = separator == -1 ? inputString.Length : separator + 1;
 
             for (int i = 0; i < inputString.Length; i++)
             {
-                if (inputString[i] == ';')
-                    break;
-                for (int j = 2; j <= inputString.Length - i; j++)
+                for (int j = i + 2; j < length; j++)
                 {
-                    var substring = inputString.Substring(i, j);
-                    if (substring.Contains(';'))
-                        break;
-
+                    var subLength = j - i;
+                    var substring = inputString.Substring(i, subLength);
                     if (substringCounts.ContainsKey(substring))
-                        substringCounts[substring]++;
-                    else
-                        substringCounts[substring] = 1;
+                        continue;
+                    int counter = 0;
+                    var k = -substring.Length;
+                    while ((k = inputString.IndexOf(substring, k + substring.Length, StringComparison.Ordinal)) > -1)
+                        counter++;
+                    substringCounts[substring] = counter;
+                    if (counter == 1)
+                        break;
                 }
             }
-
 
             string mostFrequentSubstring = substringCounts.Where(kv => kv.Value > 1)
                 .OrderByDescending(kv => kv.Value * kv.Key.Length)

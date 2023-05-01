@@ -13,7 +13,7 @@ namespace bot
             var init = reader.ReadInit();
             var solver = new Solver();
             reader.FlushToStdErr();
-            var timer = new Countdown(900);
+            var timer = new Countdown(910);
             Console.WriteLine(solver.GetSolution(init, timer));
         }
     }
