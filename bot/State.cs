@@ -28,20 +28,18 @@ namespace bot
 
     public class State
     {
-        public readonly List<Point> Path;
+        public readonly State ParentState;
         public readonly Point BenderPos;
         public readonly int FieldStatus;
         public readonly Point[] Stones;
         public readonly int usedSwitched;
-        public readonly int usedStones;
 
         public State(Point benderPos, int switches, Point[] stones)
         {
-            Path = new List<Point> { benderPos };
+            ParentState = null;
             BenderPos = new Point(benderPos);
             FieldStatus = switches;
             usedSwitched = 0;
-            usedStones = 0;
             Stones = stones;
         }
 
@@ -52,7 +50,6 @@ namespace bot
             var newStones = new Point[prevState.Stones.Length];
             Array.Copy(prevState.Stones, newStones, prevState.Stones.Length);
             usedSwitched = prevState.usedSwitched;
-            usedStones = prevState.usedStones;
             FieldStatus = prevState.FieldStatus;
             if (prevState.Stones.Length != 0)
             {
@@ -66,7 +63,6 @@ namespace bot
                     var stone = newStones[stoneIndex];
                     stone += (newPosition - prevState.BenderPos);
                     newStones[stoneIndex] = stone;
-                    usedStones++;
                     if (dictButtonToField.ContainsKey(stone))
                     {
                         var index = dictButtonToField[stone].Item2;
@@ -77,7 +73,7 @@ namespace bot
             }
             BenderPos = newPosition;
             Stones = newStones;
-            Path = new List<Point>(prevState.Path) { newPosition };
+            ParentState = prevState;
             if (FieldStatus != 0 && dictButtonToField.ContainsKey(newPosition))
             {
                 var index = dictButtonToField[newPosition].Item2;
