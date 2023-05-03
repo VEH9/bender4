@@ -110,16 +110,16 @@ namespace bot
             }
         }
 
-        public static string CompressString(string inputString, int n)
+        public static string CompressString(string inputString, int deph)
         {
-            if (n == 10)
+            if (deph == 10)
                 return inputString;
 
             var substringCounts = new Dictionary<string, int>();
             var separator = inputString.IndexOf(';');
             var length = separator == -1 ? inputString.Length : separator + 1;
 
-            for (int i = 0; i < inputString.Length; i++)
+            for (int i = 0; i < length; i++)
             {
                 for (int j = i + 2; j < length; j++)
                 {
@@ -138,15 +138,17 @@ namespace bot
             }
 
             string mostFrequentSubstring = substringCounts.Where(kv => kv.Value > 1)
-                .OrderByDescending(kv => kv.Value * kv.Key.Length)
-                .Select(kv => kv.Key)
-                .FirstOrDefault();
+                .OrderBy(kv => kv.Value * kv.Key.Length)
+                .LastOrDefault().Key;
 
             if (mostFrequentSubstring != null)
             {
-                return CompressString(inputString.Replace(mostFrequentSubstring, $"{n}") + $";{mostFrequentSubstring}", n + 1);
+                var newString = inputString.Replace(mostFrequentSubstring, $"{deph}") + $";{mostFrequentSubstring}";
+                if (newString.Length <= inputString.Length)
+                    return CompressString(newString, deph + 1);
+                return inputString;
             }
             return inputString;
         }
     }
-}   
+}
