@@ -115,9 +115,11 @@ namespace bot
             if (deph == 10)
                 return inputString;
 
-            var substringCounts = new Dictionary<string, int>();
+            var substringCounts = new HashSet<string>();
             var separator = inputString.IndexOf(';');
             var length = separator == -1 ? inputString.Length : separator + 1;
+            var mostFrequentSubstring = "";
+            var mostValue = 0;
 
             for (int i = 0; i < length; i++)
             {
@@ -125,28 +127,29 @@ namespace bot
                 {
                     var subLength = j - i;
                     var substring = inputString.Substring(i, subLength);
-                    if (substringCounts.ContainsKey(substring))
+                    if (substringCounts.Contains(substring))
                         continue;
                     int counter = 0;
                     var k = -substring.Length;
                     while ((k = inputString.IndexOf(substring, k + substring.Length, StringComparison.Ordinal)) > -1)
                         counter++;
-                    substringCounts[substring] = counter;
+                    substringCounts.Add(substring);
                     if (counter == 1)
                         break;
+                    var switchValue = counter * substring.Length;
+                    if (switchValue >= mostValue)
+                    {
+                        mostFrequentSubstring = substring;
+                        mostValue = switchValue;
+                    }
                 }
             }
 
-            string mostFrequentSubstring = substringCounts.Where(kv => kv.Value > 1)
-                .OrderBy(kv => kv.Value * kv.Key.Length)
-                .LastOrDefault().Key;
 
-            if (mostFrequentSubstring != null)
+            if (mostFrequentSubstring != "")
             {
                 var newString = inputString.Replace(mostFrequentSubstring, $"{deph}") + $";{mostFrequentSubstring}";
-                if (newString.Length <= inputString.Length)
-                    return CompressString(newString, deph + 1);
-                return inputString;
+                return newString.Length <= inputString.Length ? CompressString(newString, deph + 1) : inputString;
             }
             return inputString;
         }
