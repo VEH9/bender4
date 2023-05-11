@@ -136,7 +136,7 @@ namespace bot
                     substringCounts.Add(substring);
                     if (counter == 1)
                         break;
-                    var switchValue = counter * substring.Length;
+                    var switchValue = (counter - 1) * substring.Length - 1 - counter;
                     if (switchValue >= mostValue)
                     {
                         mostFrequentSubstring = substring;
@@ -149,7 +149,7 @@ namespace bot
             if (mostFrequentSubstring != "")
             {
                 var newString = inputString.Replace(mostFrequentSubstring, $"{deph}") + $";{mostFrequentSubstring}";
-                return newString.Length <= inputString.Length ? CompressString(newString, deph + 1) : inputString;
+                return CompressString(newString, deph + 1);
             }
             return inputString;
         }
